@@ -1,4 +1,3 @@
-package src;
 
 public class Increment implements Runnable {
     public void run() {

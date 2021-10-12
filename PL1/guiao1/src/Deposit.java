@@ -1,4 +1,3 @@
-package src;
 
 public class Deposit implements Runnable {
     private Bank bank;

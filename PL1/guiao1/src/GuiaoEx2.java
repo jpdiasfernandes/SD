@@ -1,4 +1,3 @@
-package src;
 
 public class GuiaoEx2 {
     public static void main(String[] args) throws InterruptedException {
