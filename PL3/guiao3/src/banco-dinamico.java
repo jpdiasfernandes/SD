@@ -3,6 +3,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class Bank {
 
@@ -25,6 +27,10 @@ class Bank {
 
     private Map<Integer, Account> map = new HashMap<Integer, Account>();
     private int nextId = 0;
+
+    // Não faz sentido aplicar o ReadWriteLock às contas uma vez que raramente
+    // só consultamos saldos. A distribuição de operações r/w é bastante semelhante
+    // para fazer a distinção
     private ReadWriteLock l = new ReentrantReadWriteLock();
 
 
@@ -142,8 +148,9 @@ class Bank {
         try {
             if (cfrom == null || cto ==  null)
                 return false;
-            cfrom.l.lock();
-            cto.l.lock();
+            // Como pode haver várias threads ao mesmo tempo, já não é garantida uma ordem
+            // fixa, por isso, uma solução é fazer lock por ordem crescente de id.
+            Stream.of(from,to).sorted().forEach(id->map.get(id).l.lock());
         } finally {
             rl.unlock();
         }
@@ -161,11 +168,15 @@ class Bank {
     public int totalBalance(int[] ids) {
         int total = 0;
         List<Account> tmp = new ArrayList<>();
+        List<Integer> idsSorted = Arrays.stream(ids)
+                .boxed()
+                .sorted()
+                .collect(Collectors.toList());
         Lock rl = this.l.readLock();
 
         rl.lock();
         try {
-            for (int i : ids) {
+            for (int i : idsSorted) {
                 Account c = map.get(i);
                 if (c == null)
                     return 0;
