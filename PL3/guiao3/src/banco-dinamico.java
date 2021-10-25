@@ -49,10 +49,9 @@ class Bank {
 
     // close account and return balance, or 0 if no such account
     public int closeAccount(int id) {
-        // rl = read lock
-        Lock rl = this.l.readLock();
+        Lock wl = this.l.writeLock();
 
-        rl.lock();
+        wl.lock();
         //2PL
         Account c = map.remove(id);
         try {
@@ -60,7 +59,7 @@ class Bank {
                 return 0;
             c.l.lock();
         } finally {
-            rl.unlock();
+            wl.unlock();
         }
 
         try {
@@ -199,7 +198,6 @@ class Bank {
         // preciso dar só unlock no final da soma
 
         return total;
-
   }
 
 }
