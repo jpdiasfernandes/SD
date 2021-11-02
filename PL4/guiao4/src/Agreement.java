@@ -7,6 +7,7 @@ public class Agreement {
     private Lock l = new ReentrantLock();
     private Condition c;
     private int N;
+    private int n;
     private int max;
     private boolean aberta;
 
@@ -14,6 +15,7 @@ public class Agreement {
         this.b = new Barrier(N);
         this.c = l.newCondition();
         this.N = N;
+        this.n = N;
         this.max = Integer.MIN_VALUE;
         this.aberta = false;
     }
@@ -24,7 +26,7 @@ public class Agreement {
             c.await();
         }
         if (choice > max) max = choice;
-        if (this.N-- == 1)
+        if (this.n-- == 1)
             aberta = true;
 
         l.unlock();
@@ -34,7 +36,7 @@ public class Agreement {
         try {
             return max;
         } finally {
-            if (++this.N == 10) {
+            if (++this.n == this.N) {
                 aberta = false;
                 c.signalAll();
                 max = Integer.MIN_VALUE;
