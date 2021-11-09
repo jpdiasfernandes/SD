@@ -40,8 +40,6 @@ public class Warehouse {
       while(p.quantity == 0)
         p.c.await();
       p.quantity--;
-      //Debug
-      //System.out.println("Consumed 1" );
     }
 
     l.unlock();
@@ -70,15 +68,11 @@ public class Warehouse {
       for(String s : items) {
         Product p = get(s);
         p.quantity--;
-        //Debug
-        //System.out.println("Consumed 1");
       }
       l.unlock();
   }
 
   public void consumeNoStarve(Set<String> items) throws InterruptedException {
-    // A professora considerou o numero de wakes não o numero de voltas
-    // mudar o que fiz
 
     l.lock();
     int tries = 0;
