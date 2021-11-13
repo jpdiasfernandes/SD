@@ -29,7 +29,7 @@ class ServerResponse implements Runnable {
                 try {
                     Integer x = Integer.parseInt(line);
                     int sum = s.add(x);
-                    out.println("" + sum);
+                    out.println(sum);
                     out.flush();
                 } catch (NumberFormatException e) {
                     out.println("Error in parsing");
@@ -40,7 +40,7 @@ class ServerResponse implements Runnable {
 
             socket.shutdownInput();
             double mean = s.mean();
-            out.println("" + mean);
+            out.println(mean);
             out.flush();
 
             socket.shutdownOutput();

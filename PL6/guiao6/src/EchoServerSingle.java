@@ -27,13 +27,13 @@ public class EchoServerSingle {
                     Integer x = Integer.parseInt(line);
                     sum += x;
                     n++;
-                    out.println("" + sum);
+                    out.println(sum);
                     out.flush();
                 }
 
                 socket.shutdownInput();
                 double mean = sum / n;
-                out.println("" + mean);
+                out.println(mean);
                 out.flush();
 
                 socket.shutdownOutput();
