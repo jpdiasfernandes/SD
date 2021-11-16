@@ -69,6 +69,14 @@ public class SenderReceiverClient {
         return r;
     }
 
+    public void sendGeneric(byte opcode, int quantity) throws IOException {
+        ByteBuffer sender = ByteBuffer.allocate(5);
+        sender.put(opcode);
+        sender.putInt(quantity);
+        out.write(sender.array());
+        out.flush();
+    }
+
     public double receive() throws IOException {
         ByteBuffer receiver = ByteBuffer.allocate(8);
         byte [] b = new byte[8];
@@ -76,7 +84,8 @@ public class SenderReceiverClient {
         receiver.clear();
         receiver.put(b);
         receiver.position(0);
-        return receiver.getDouble();
+        double r = receiver.getDouble();
+        return r;
     }
     
 }
