@@ -11,37 +11,26 @@ import java.util.concurrent.locks.ReentrantLock;
 class ServerResponse implements Runnable {
 
     private Socket socket;
-    private Sum s;
+    private SenderReceiverServer srs;
+    private Arithmetic a;
 
-    public ServerResponse(Socket socket, Sum s) {
+    public ServerResponse(Socket socket, Arithmetic a) throws IOException{
         this.socket = socket;
-        this.s = s;
-
+        this.a = a;
+        this.srs = new SenderReceiverServer(socket.getOutputStream(), socket.getInputStream());
     }
 
     public void run() {
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream());
-
-            String line;
-            while ((line = in.readLine()) != null) {
-                try {
-                    Integer x = Integer.parseInt(line);
-                    int sum = s.add(x);
-                    out.println(sum);
-                    out.flush();
-                } catch (NumberFormatException e) {
-                    out.println("Error in parsing");
-                    out.flush();
-                }
-
+            boolean run = true;
+            while (srs.read()) {
+                double state = srs.receive(a);
+                srs.send(state);
             }
 
             socket.shutdownInput();
-            double mean = s.mean();
-            out.println(mean);
-            out.flush();
+            double mean = a.mean();
+            srs.send(mean);
 
             socket.shutdownOutput();
             socket.close();
@@ -54,14 +43,14 @@ public class EchoServerMult {
     Lock l = new ReentrantLock();
 
     public static void main(String[] args) {
-        Sum s = new Sum();
+        Arithmetic a = new Arithmetic();
         try {
             ServerSocket ss = new ServerSocket(12345);
 
 
             while (true) {
                 Socket socket = ss.accept();
-                Thread connection = new Thread(new ServerResponse(socket,s));
+                Thread connection = new Thread(new ServerResponse(socket,a));
                 connection.start();
             }
         } catch (IOException e) {
